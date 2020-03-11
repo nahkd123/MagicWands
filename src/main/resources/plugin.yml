@@ -1,10 +1,10 @@
-name: SlimefunAddon
+name: MagicWands
 version: ${project.version}
-author: CHANGEME
-description: A generic Slimefun4-Addon
-website: https://github.com/TheBusyBiscuit/Slimefun4-Addon
+author: nahkd123
+description: Add programmable magic wands to your server
+website: https://github.com/nahkd123/MagicWands
 
-main: me.CHANGEME.slimefunaddon.ExampleAddon
+main: me.nahkd.spigot.sfaddons.MagicWands.MagicWands
 depend: [Slimefun]
 
-api-version: 1.14
+api-version: 1.15
