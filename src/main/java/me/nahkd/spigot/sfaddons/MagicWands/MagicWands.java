@@ -20,8 +20,8 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 	public static MagicWands pluginInstance;
 	
 	public static final String CATEGORY_NAME = "§bMagicWands";
-	public static final Category PLUGIN_CATEGORY = new Category(new NamespacedKey(pluginInstance, "magicwands"), new CustomItem(Material.STICK, CATEGORY_NAME));
 	
+	public static Category PLUGIN_CATEGORY;
 	public static MagicWand MAGIC_WAND;
 	
 	@Override
@@ -68,6 +68,7 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 //		// Recipy Types from Slimefun itself will automatically add the recipe to that machine
 //		SlimefunItem item = new SlimefunItem(category, slimefunItem, RecipeType.ENHANCED_CRAFTING_TABLE, recipe);
 //		item.register(this);
+		PLUGIN_CATEGORY = new Category(new NamespacedKey(pluginInstance, "magicwands"), new CustomItem(Material.STICK, CATEGORY_NAME));
 		MAGIC_WAND = new MagicWand(); MAGIC_WAND.register(this);
 	}
 	
