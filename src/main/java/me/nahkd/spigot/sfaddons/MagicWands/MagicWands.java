@@ -13,6 +13,7 @@ import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import me.mrCookieSlime.Slimefun.bstats.bukkit.Metrics;
 import me.mrCookieSlime.Slimefun.cscorelib2.config.Config;
 import me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem;
+import me.nahkd.spigot.sfaddons.MagicWands.sf.Computer;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.HardDrive;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.MagicWand;
 
@@ -25,6 +26,7 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 	public static Category PLUGIN_CATEGORY;
 	public static MagicWand MAGIC_WAND;
 	public static HardDrive HARD_DRIVE;
+	public static Computer COMPUTER;
 	
 	@Override
 	public void onEnable() {
@@ -74,6 +76,7 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 		PLUGIN_CATEGORY = new Category(new NamespacedKey(pluginInstance, "magicwands"), new CustomItem(Material.STICK, CATEGORY_NAME));
 		MAGIC_WAND = new MagicWand(); MAGIC_WAND.register(this);
 		HARD_DRIVE = new HardDrive(); HARD_DRIVE.register(this);
+		COMPUTER = new Computer(); COMPUTER.register(this);
 	}
 	
 	@Override
