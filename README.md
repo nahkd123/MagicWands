@@ -1,15 +1,14 @@
-# Slimefun4 Addon
-This is an example Repository for a generic Slimefun4 Addon.
-In the top left is a button "Use this template", click this to create your own Addon for Slimefun4 using this basic template.
+# MagicWands #
+## What the HELL is this? ##
+This is Slimefun addon, that's adds magic wands to your server. These wands can be programmable by using wands programmer.
 
-## Changing some important things
-Navigate to `src/main/java` and rename the package and the .java File to your liking.<br>
-Suggestion: "me.yourname.yourproject" (all lower case) and "ProjectName.java"<br>
-Example: "me.thebusybiscuit.cooladdon" and "CoolAddon.java"
+## Sound epic, how do I install this? ##
+First, you'll need these plugins:
+- Slimefun 4 (ofc because this is Slimefun Addon)
+- CS-Core Lib
 
-Navigate to `src/main/resources/plugin.yml` and change the "author" and "main" attributes.
-You may also want to change the description to something meaningful.
+If you're asking "wait wait should I use stable builds or development builds?", then please use the development build. I know,
+it's not stable to use, but meh, idc...
 
-Navigate to `pom.xml` and change the group id to "me.%Your name%" and change the arficact id to the name of your Project.
-
-After that you are good to go, you can now start developing your own Addon for Slimefun4.
+## I want you to add abcxyzjdsakla to this addon ##
+Please create a new issue on Issues tab, I'll review it and do stuffs with it.
