@@ -68,6 +68,7 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 //		// Recipy Types from Slimefun itself will automatically add the recipe to that machine
 //		SlimefunItem item = new SlimefunItem(category, slimefunItem, RecipeType.ENHANCED_CRAFTING_TABLE, recipe);
 //		item.register(this);
+		MagicWand.KEY_REPROGRAM_COUNT = new NamespacedKey(this, "reprogramCount");
 		PLUGIN_CATEGORY = new Category(new NamespacedKey(pluginInstance, "magicwands"), new CustomItem(Material.STICK, CATEGORY_NAME));
 		MAGIC_WAND = new MagicWand(); MAGIC_WAND.register(this);
 	}
