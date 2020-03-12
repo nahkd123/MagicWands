@@ -1,6 +1,7 @@
 package me.nahkd.spigot.sfaddons.MagicWands.sf;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,11 +16,13 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.interfaces.InventoryBlock;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockUseHandler;
 import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem;
 import me.nahkd.spigot.sfaddons.MagicWands.MagicWands;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.slimefun.ExtraInventoryBlock;
 
-public class Computer extends SlimefunItem implements InventoryBlock, EnergyNetComponent {
+public class Computer extends SlimefunItem implements ExtraInventoryBlock, EnergyNetComponent {
 	
 	// #GUI
 	public static final ItemStack GUI_ADDSTATEMENT = new CustomItem(
@@ -28,7 +31,25 @@ public class Computer extends SlimefunItem implements InventoryBlock, EnergyNetC
 			"",
 			"&fAdd a statement in here"
 			);
-	// #End of GUI
+	public static final ItemStack GUI_BACK = new CustomItem(
+			Material.ARROW,
+			"&e<< Back",
+			"",
+			"&fGo back"
+			);
+	public static final ItemStack GUI_PREVIOUS = new CustomItem(
+			Material.YELLOW_STAINED_GLASS_PANE,
+			"&e<< Previous",
+			"",
+			"&fGo to previous page"
+			);
+	public static final ItemStack GUI_NEXT = new CustomItem(
+			Material.YELLOW_STAINED_GLASS_PANE,
+			"&eNext >>",
+			"",
+			"&fGo to next page"
+			);
+	// #End of GUI BlockBreakHandler
 	
 	public static final SlimefunItemStack ITEM = new SlimefunItemStack(
 			"COMPUTER",
@@ -56,16 +77,24 @@ public class Computer extends SlimefunItem implements InventoryBlock, EnergyNetC
 	
 	void constructGUI(BlockMenuPreset preset) {
 		preset.setSize(54);
-		for (int i = 0; i < 5; i++) preset.addItem(i * 9, GUI_ADDSTATEMENT, new MenuClickHandler() {
-			@Override
-			public boolean onClick(Player player, int slot, ItemStack item, ClickAction action) {
-				// preset.addItem(slot, new ItemStack(Material.STONE));
-				// I'm stuck in here :(
-				// wait.. no.. i can do it...
-				player.getOpenInventory().getTopInventory().setItem(slot, new ItemStack(Material.STONE));
-				return false;
-			}
-		});
+		// Put GUI in here uwu
+	}
+
+	@Override
+	public void newInstance(BlockMenu menu, Block b) {
+		b.setType(Material.STONE); // this works
+		for (int i = 0; i < 3; i++) {
+			menu.addItem(i, GUI_PREVIOUS, new MenuClickHandler() {
+				
+				@Override
+				public boolean onClick(Player arg0, int slot, ItemStack arg2, ClickAction arg3) {
+					b.setType(Material.DIAMOND_BLOCK); // this works tho
+					menu.addItem(slot, GUI_PREVIOUS); // this doesn't work
+					return false;
+				}
+			});
+			menu.addItem(i + 36, GUI_NEXT);
+		}
 	}
 
 	@Override
