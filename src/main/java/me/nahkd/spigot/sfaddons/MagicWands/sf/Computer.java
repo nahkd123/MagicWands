@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -217,13 +218,15 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		StatementLocation loc = new StatementLocation();
 		for (int y = 0; y < 6; y++) for (int x = 0; x < 6; x++) {
 			final int displaySlot = y * 9 + (x + 3);
+			ItemStack out;
 			loc.x = data.viewLocation.x + x; loc.y = data.viewLocation.y + y;
+			if (data.program.statements.containsKey(loc)) out = data.program.statements.get(loc).statement.displayStatement();
+			else out =  GUI_PLACEHOLDER;
 			if (loc.x == data.selectedLoc.x && loc.y == data.selectedLoc.y && data.selected) {
-				menu.replaceExistingItem(displaySlot, GUI_SELECTED);
-				// TODO show input string
+				out.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
 			}
-			else if (data.program.statements.containsKey(loc)) menu.replaceExistingItem(displaySlot, data.program.statements.get(loc).statement.displayStatement());
-			else menu.replaceExistingItem(displaySlot, GUI_PLACEHOLDER);
+			
+			menu.replaceExistingItem(displaySlot, out);
 		}
 	}
 	public void click_statements(Player p, int slot, ItemStack item, ClickAction action, int statementIndex, ComputerData data) {
@@ -231,7 +234,6 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 			p.sendMessage("§7>> §cYou haven't selected a slot, have you?");
 			return;
 		}
-		data.selected = false;
 		if (data.program.statements.containsKey(data.selectedLoc)) data.program.statements.get(data.selectedLoc).statement = Statement.getStatements().get(statementIndex);
 		else data.program.statements.put(new StatementLocation(data.selectedLoc), new StatementInfo(Statement.getStatements().get(statementIndex)));
 		showCurrentProgram(data.menu, data);
