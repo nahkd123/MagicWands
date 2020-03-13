@@ -1,5 +1,7 @@
 package me.nahkd.spigot.sfaddons.MagicWands;
 
+import java.nio.charset.Charset;
+
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -13,10 +15,14 @@ import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import me.mrCookieSlime.Slimefun.bstats.bukkit.Metrics;
 import me.mrCookieSlime.Slimefun.cscorelib2.config.Config;
 import me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem;
-import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementTerminateProgram;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.persistent.StringArrayItemTagType;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementDown;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementTerminate;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementUp;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.Computer;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.HardDrive;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.MagicWand;
+import me.nahkd.spigot.sfaddons.MagicWands.sf.WandProgrammer;
 
 public class MagicWands extends JavaPlugin implements SlimefunAddon {
 	
@@ -25,9 +31,15 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 	public static final String CATEGORY_NAME = "§bMagicWands";
 	
 	public static Category PLUGIN_CATEGORY;
-	public static MagicWand MAGIC_WAND;
-	public static HardDrive HARD_DRIVE;
-	public static Computer COMPUTER;
+	public MagicWand MAGIC_WAND;
+	public HardDrive HARD_DRIVE;
+	public Computer COMPUTER;
+	public WandProgrammer WAND_PROGRAMMER;
+
+	public NamespacedKey KEY_PROGRAM;
+	public NamespacedKey KEY_UUID;
+	
+	public StringArrayItemTagType STRING_ARRAY;
 	
 	@Override
 	public void onEnable() {
@@ -73,14 +85,26 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 //		// Recipy Types from Slimefun itself will automatically add the recipe to that machine
 //		SlimefunItem item = new SlimefunItem(category, slimefunItem, RecipeType.ENHANCED_CRAFTING_TABLE, recipe);
 //		item.register(this);
+		
+		// NamespacedKey
+		KEY_PROGRAM = new NamespacedKey(this, "program");
+		KEY_UUID = new NamespacedKey(this, "uuid");
+		
+		// Persistent thing
+		STRING_ARRAY = new StringArrayItemTagType(Charset.forName("UTF-8"));
+		
+		// Slimefun
 		MagicWand.KEY_REPROGRAM_COUNT = new NamespacedKey(this, "reprogramCount");
 		PLUGIN_CATEGORY = new Category(new NamespacedKey(pluginInstance, "magicwands"), new CustomItem(Material.STICK, CATEGORY_NAME));
-		MAGIC_WAND = new MagicWand(); MAGIC_WAND.register(this);
+		MAGIC_WAND = new MagicWand(this); MAGIC_WAND.register(this);
 		HARD_DRIVE = new HardDrive(); HARD_DRIVE.register(this);
-		COMPUTER = new Computer(); COMPUTER.register(this);
+		COMPUTER = new Computer(this); COMPUTER.register(this);
+		WAND_PROGRAMMER = new WandProgrammer(this); WAND_PROGRAMMER.register(this);
 		
 		// Setting up statements and stuffs
-		new StatementTerminateProgram().register();
+		new StatementTerminate().register();
+		new StatementUp().register();
+		new StatementDown().register();
 	}
 	
 	@Override

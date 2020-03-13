@@ -1,12 +1,12 @@
 package me.nahkd.spigot.sfaddons.MagicWands.sf;
 
-import java.util.HashMap;
-import org.bukkit.Location;
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import io.github.thebusybiscuit.slimefun4.core.attributes.EnergyNetComponent;
 import io.github.thebusybiscuit.slimefun4.core.networks.energy.EnergyNetComponentType;
@@ -20,12 +20,14 @@ import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
+import me.mrCookieSlime.Slimefun.cscorelib2.data.PersistentDataAPI;
 import me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem;
 import me.nahkd.spigot.sfaddons.MagicWands.MagicWands;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.ComputerData;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.Program;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.Statement;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.StatementLocation;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.persistent.StringArrayItemTagType;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.slimefun.ExtraInventoryBlock;
 
 public class Computer extends SlimefunItem implements ExtraInventoryBlock, EnergyNetComponent {
@@ -62,8 +64,10 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 			"&fYou're currently selected",
 			"&fthis slot."
 	);
-	// Is there is other way to store data? I think we'll have to use "useless" item
 	public static final ItemStack GUI_NOTHING = new CustomItem(Material.BLACK_STAINED_GLASS_PANE, " ");
+	public static final ItemStack GUI_PLACEHOLDER = new CustomItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE, " ");
+	public static final ItemStack GUI_SAVE = new CustomItem(Material.LIME_STAINED_GLASS_PANE, "&aSave", "", "&fSave program by writting to", "&fhard drive", "", "&7You have to put the hard", "&7drive on 2nd slot.");
+	public static final ItemStack GUI_LOAD = new CustomItem(Material.YELLOW_STAINED_GLASS_PANE, "&eLoad", "", "&fLoad program from your", "&fhard drive", "", "&7You have to put the hard", "&7drive on 2nd slot");
 	// #End of GUI
 	
 	// HashMap<Location, ComputerData> datas;
@@ -86,9 +90,12 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 			SlimefunItems.STEEL_INGOT, SlimefunItems.POWER_CRYSTAL, SlimefunItems.STEEL_INGOT,
 	};
 	
-	public Computer() {
+	protected MagicWands plugin;
+	
+	public Computer(MagicWands plugin) {
 		super(MagicWands.PLUGIN_CATEGORY, ITEM, RecipeType.ENHANCED_CRAFTING_TABLE, RECIPE);
 		
+		this.plugin = plugin;
 		// this.datas = new HashMap<Location, ComputerData>();
 		createPreset(this, "&4Program Editor", this::constructGUI);
 	}
@@ -96,11 +103,12 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 	void constructGUI(BlockMenuPreset preset) {
 		preset.setSize(54);
 		
-		for (int i = 0; i < 3; i++) {
-			preset.addItem(i, GUI_PREVIOUS);
-			preset.addItem(i + 36, GUI_NEXT);
-		}
-		preset.addItem(47, GUI_NOTHING, ChestMenuUtils.getEmptyClickHandler());
+		preset.addItem(36, GUI_PREVIOUS);
+		
+		preset.addItem(38, GUI_NEXT);
+		preset.addItem(45, GUI_SAVE);
+		
+		preset.addItem(47, GUI_LOAD);
 	}
 
 	@Override
@@ -110,38 +118,37 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		showCurrentProgram(menu, data);
 		
 		// Here we'll add click handers. We can't use menu.addItem, we must use menu.toInventory().setItem()
-		for (int i = 0; i < 3; i++) {
-			menu.addMenuClickHandler(i, new MenuClickHandler() {
-				@Override
-				public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
-					// Previous button
-					if (data.statementsPage > 0) {
-						data.statementsPage--;
-						showAvailableStatements(menu, data.statementsPage);
-					}
-					return false;
-				}
-			});
-			menu.addMenuClickHandler(i + 36, new MenuClickHandler() {
-				@Override
-				public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
-					// Next button
-					data.statementsPage++;
+		menu.addMenuClickHandler(36, new MenuClickHandler() {
+			@Override
+			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
+				// Previous button
+				if (data.statementsPage > 0) {
+					data.statementsPage--;
 					showAvailableStatements(menu, data.statementsPage);
+				}
+				return false;
+			}
+		});
+		menu.addMenuClickHandler(38, new MenuClickHandler() {
+			@Override
+			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
+				// Next button
+				data.statementsPage++;
+				showAvailableStatements(menu, data.statementsPage);
+				return false;
+			}
+		});
+			
+		for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) {
+			final int slot = (j + 1) * 9 + i;
+			final int jj = j, ii = i;
+			menu.addMenuClickHandler(slot, new MenuClickHandler() {
+				@Override
+				public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
+					click_statements(p, slot, item, action, (jj * 3) + ii, data);
 					return false;
 				}
 			});
-			for (int j = 0; j < 3; j++) {
-				final int slot = (j + 1) * 9 + i;
-				final int jj = j, ii = i;
-				menu.addMenuClickHandler(slot, new MenuClickHandler() {
-					@Override
-					public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
-						click_statements(p, slot, item, action, (jj * 3) + ii, data);
-						return false;
-					}
-				});
-			}
 		}
 		
 		for (int y = 0; y < 6; y++) for (int x = 0; x < 6; x++) {
@@ -155,6 +162,21 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 				}
 			});
 		}
+		
+		menu.addMenuClickHandler(45, new MenuClickHandler() {
+			@Override
+			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
+				saveProgram(p, slot, item, action, data);
+				return false;
+			}
+		});
+		menu.addMenuClickHandler(47, new MenuClickHandler() {
+			@Override
+			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
+				loadProgram(p, slot, item, action, data);
+				return false;
+			}
+		});
 	}
 	public void showAvailableStatements(BlockMenu menu, int page) {
 		for (int i = 0; i < 9; i++) {
@@ -170,7 +192,7 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 			loc.x = data.viewLocation.x + x; loc.y = data.viewLocation.y + y;
 			if (loc.x == data.selectedLoc.x && loc.y == data.selectedLoc.y && data.selected) menu.replaceExistingItem(displaySlot, GUI_SELECTED);
 			else if (data.program.statements.containsKey(loc)) menu.replaceExistingItem(displaySlot, data.program.statements.get(loc).displayStatement());
-			else menu.replaceExistingItem(displaySlot, null);
+			else menu.replaceExistingItem(displaySlot, GUI_PLACEHOLDER);
 		}
 	}
 	public void click_statements(Player p, int slot, ItemStack item, ClickAction action, int statementIndex, ComputerData data) {
@@ -180,16 +202,54 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		showCurrentProgram(data.menu, data);
 	}
 	public void click_program(Player p, int slot, ItemStack item, ClickAction action, StatementLocation loc, ComputerData data) {
-		if (loc.equals(data.selectedLoc) && data.selected) {
+		if (action.isRightClicked()) {
 			data.selected = false;
+			if (data.program.statements.containsKey(loc)) data.program.statements.remove(loc);
 			showCurrentProgram(data.menu, data);
 		} else {
-			data.selectedLoc.from(loc);
-			data.selected = true;
-			showCurrentProgram(data.menu, data);
+			if (loc.equals(data.selectedLoc) && data.selected) {
+				data.selected = false;
+				showCurrentProgram(data.menu, data);
+			} else {
+				data.selectedLoc.from(loc);
+				data.selected = true;
+				showCurrentProgram(data.menu, data);
+			}
 		}
 	}
-
+	public void saveProgram(Player p, int slot, ItemStack item, ClickAction action, ComputerData data) {
+		ItemStack harddrive = data.menu.getItemInSlot(46);
+		if (harddrive == null || harddrive.getType() == Material.AIR || !plugin.HARD_DRIVE.isItem(harddrive)) {
+			p.sendMessage("§7>> §cI don't think that's a hard drive...");
+			return;
+		}
+		
+		ItemMeta meta = harddrive.getItemMeta();
+		final int writeLimit = Integer.parseInt(meta.getLore().get(5).split(" ")[0].substring(2));
+		if (writeLimit <= 0) {
+			p.sendMessage("§7>> §cYou've exceed the write limit of the hard drive :(");
+			return;
+		}
+		meta.getPersistentDataContainer().set(plugin.KEY_PROGRAM, plugin.STRING_ARRAY, data.program.toStringArray());
+		List<String> lore = meta.getLore();
+		lore.set(5, "§e" + (writeLimit - 1) + " Writes §7left");
+		meta.setLore(lore);
+		harddrive.setItemMeta(meta);
+		
+		data.menu.replaceExistingItem(46, harddrive);
+	}
+	public void loadProgram(Player p, int slot, ItemStack item, ClickAction action, ComputerData data) {
+		ItemStack harddrive = data.menu.getItemInSlot(46);
+		if (harddrive == null || harddrive.getType() == Material.AIR || !plugin.HARD_DRIVE.isItem(harddrive)) {
+			p.sendMessage("§7>> §cI don't think that's a hard drive...");
+			return;
+		}
+		
+		ItemMeta meta = harddrive.getItemMeta();
+		data.program = Program.fromStringArray(meta.getPersistentDataContainer().get(plugin.KEY_PROGRAM, plugin.STRING_ARRAY));
+		showCurrentProgram(data.menu, data);
+	}
+	
 	@Override
 	public EnergyNetComponentType getEnergyComponentType() {return EnergyNetComponentType.CONSUMER;}
 

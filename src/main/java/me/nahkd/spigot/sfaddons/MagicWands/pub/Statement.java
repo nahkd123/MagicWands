@@ -14,6 +14,7 @@ public abstract class Statement {
 	 */
 	public abstract boolean runStatement(Player player, RuntimeInfo info);
 	public abstract ItemStack displayStatement();
+	public abstract double powerCost();
 	public void register() {register(this);}
 	
 	private static ArrayList<Statement> statements;
