@@ -19,6 +19,8 @@ import me.nahkd.spigot.sfaddons.MagicWands.events.PlayerListener;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.persistent.StringArrayItemTagType;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementDown;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementInfo;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementLeft;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementRight;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementTerminate;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementUp;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.Computer;
@@ -111,6 +113,8 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 		new StatementUp().register();
 		new StatementDown().register();
 		new StatementInfo().register();
+		new StatementLeft().register();
+		new StatementRight().register();
 		
 		// Events
 		getServer().getPluginManager().registerEvents(new PlayerListener(this), this);

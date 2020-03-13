@@ -18,6 +18,7 @@ import me.mrCookieSlime.Slimefun.Lists.RecipeType;
 import me.mrCookieSlime.Slimefun.Lists.SlimefunItems;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
+import me.mrCookieSlime.Slimefun.api.energy.ChargableBlock;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.cscorelib2.data.PersistentDataAPI;
@@ -107,12 +108,14 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		preset.setSize(54);
 		
 		preset.addItem(0, GUI_INPUT);
+		preset.addItem(1, GUI_NOTHING);
+		preset.addItem(2, GUI_NOTHING);
 		
 		preset.addItem(36, GUI_PREVIOUS);
-		
+		preset.addItem(37, GUI_NOTHING);
 		preset.addItem(38, GUI_NEXT);
-		preset.addItem(45, GUI_SAVE);
 		
+		preset.addItem(45, GUI_SAVE);
 		preset.addItem(47, GUI_LOAD);
 	}
 
@@ -251,6 +254,10 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 	}
 	public void saveProgram(Player p, int slot, ItemStack item, ClickAction action, ComputerData data) {
 		ItemStack harddrive = data.menu.getItemInSlot(46);
+		if (ChargableBlock.getCharge(data.computerLoc) < 16) {
+			p.sendMessage("§7>> §cOut of power!");
+			return;
+		}
 		if (harddrive == null || harddrive.getType() == Material.AIR || !plugin.HARD_DRIVE.isItem(harddrive)) {
 			p.sendMessage("§7>> §cI don't think that's a hard drive...");
 			return;
@@ -269,6 +276,7 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		harddrive.setItemMeta(meta);
 		
 		data.menu.replaceExistingItem(46, harddrive);
+		ChargableBlock.addCharge(data.computerLoc, -16);
 	}
 	public void loadProgram(Player p, int slot, ItemStack item, ClickAction action, ComputerData data) {
 		ItemStack harddrive = data.menu.getItemInSlot(46);
