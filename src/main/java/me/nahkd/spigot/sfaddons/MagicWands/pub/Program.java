@@ -11,13 +11,13 @@ public class Program {
 	private static final double POWER_PER_STEP = 0.05;
 	
 	public final int maxStatements;
-	public HashMap<StatementLocation, Statement> statements;
+	public HashMap<StatementLocation, StatementInfo> statements;
 	public int startX;
 	public int startY;
 	
 	public Program(int maxStatement) {
 		this.maxStatements = maxStatement;
-		this.statements = new HashMap<StatementLocation, Statement>();
+		this.statements = new HashMap<StatementLocation, StatementInfo>();
 		
 		this.startX = 0;
 		this.startY = 0;
@@ -35,7 +35,7 @@ public class Program {
 				player.sendMessage("§7>> §cSteps exceed! (" + MAX_STEPS + ")");
 				return powerCost;
 			}
-			final Statement st = statements.get(info.currentLoc);
+			final StatementInfo st = statements.get(info.currentLoc);
 			if (st == null) {
 				player.sendMessage("§7>> Empty statement slot. Program terminated");
 				return powerCost;
@@ -53,8 +53,8 @@ public class Program {
 	public String[] toStringArray() {
 		String[] out = new String[statements.size()];
 		int i = 0;
-		for (Entry<StatementLocation, Statement> entry : statements.entrySet()) {
-			out[i] = entry.getKey().x + ":" + entry.getKey().y + ":" + Statement.getStatements().indexOf(entry.getValue());
+		for (Entry<StatementLocation, StatementInfo> entry : statements.entrySet()) {
+			out[i] = entry.getKey().x + ":" + entry.getKey().y + ":" + Statement.getStatements().indexOf(entry.getValue().statement) + ":" + entry.getValue().input;
 			i++;
 		}
 		return out;
@@ -67,7 +67,9 @@ public class Program {
 			final int x = Integer.parseInt(ssarr[0]);
 			final int y = Integer.parseInt(ssarr[1]);
 			final int s = Integer.parseInt(ssarr[2]);
-			p.statements.put(new StatementLocation(x, y), Statement.getStatements().get(s));
+			StatementInfo sts = new StatementInfo(Statement.getStatements().get(s));
+			sts.input = ss.substring(3 + ssarr[0].length() + ssarr[1].length() + ssarr[2].length());
+			p.statements.put(new StatementLocation(x, y), sts);
 		}
 		return p;
 	}

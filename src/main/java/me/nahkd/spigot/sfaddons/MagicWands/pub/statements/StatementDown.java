@@ -12,12 +12,12 @@ import me.nahkd.spigot.sfaddons.MagicWands.pub.Statement;
 public class StatementDown extends Statement {
 	
 	@Override
-	public boolean runStatement(Player player, RuntimeInfo info) {
+	public boolean runStatement(Player player, RuntimeInfo info, String input) {
 		info.direction = ProgramSteppingDirection.DOWN;
 		return false;
 	}
 	@Override
-	public double powerCost() {
+	public double powerCost(String input) {
 		return 0.1;
 	}
 	

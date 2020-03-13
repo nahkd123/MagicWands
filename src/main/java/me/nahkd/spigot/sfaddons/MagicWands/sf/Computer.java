@@ -26,6 +26,7 @@ import me.nahkd.spigot.sfaddons.MagicWands.MagicWands;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.ComputerData;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.Program;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.Statement;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.StatementInfo;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.StatementLocation;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.persistent.StringArrayItemTagType;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.slimefun.ExtraInventoryBlock;
@@ -68,6 +69,8 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 	public static final ItemStack GUI_PLACEHOLDER = new CustomItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE, " ");
 	public static final ItemStack GUI_SAVE = new CustomItem(Material.LIME_STAINED_GLASS_PANE, "&aSave", "", "&fSave program by writting to", "&fhard drive", "", "&7You have to put the hard", "&7drive on 2nd slot.");
 	public static final ItemStack GUI_LOAD = new CustomItem(Material.YELLOW_STAINED_GLASS_PANE, "&eLoad", "", "&fLoad program from your", "&fhard drive", "", "&7You have to put the hard", "&7drive on 2nd slot");
+	
+	public static final ItemStack GUI_INPUT = new CustomItem(Material.PAPER, "&fInput", "", "&fPlace a Input Card in here", "&fto change input.");
 	// #End of GUI
 	
 	// HashMap<Location, ComputerData> datas;
@@ -103,6 +106,8 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 	void constructGUI(BlockMenuPreset preset) {
 		preset.setSize(54);
 		
+		preset.addItem(0, GUI_INPUT);
+		
 		preset.addItem(36, GUI_PREVIOUS);
 		
 		preset.addItem(38, GUI_NEXT);
@@ -118,6 +123,26 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		showCurrentProgram(menu, data);
 		
 		// Here we'll add click handers. We can't use menu.addItem, we must use menu.toInventory().setItem()
+		menu.addMenuClickHandler(0, new MenuClickHandler() {
+			@Override
+			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
+				ItemStack inputCard = p.getItemOnCursor();
+				if (inputCard == null || inputCard.getType() == Material.AIR || !plugin.INPUT_CARD.isItem(inputCard)) {
+					p.sendMessage("§7>> You must put Input Card on your cursor first!");
+					return false;
+				}
+				if (!data.selected) {
+					p.sendMessage("§7>> §cYou haven't selected a slot, have you?");
+					return false;
+				}
+				if (data.program.statements.containsKey(data.selectedLoc)) {
+					data.program.statements.get(data.selectedLoc).input = InputCard.getInput(inputCard);
+					showCurrentProgram(menu, data);
+				} else p.sendMessage("§7>> §cThat selected slot is empty!");
+				return false;
+			}
+		});
+		
 		menu.addMenuClickHandler(36, new MenuClickHandler() {
 			@Override
 			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
@@ -190,15 +215,22 @@ public class Computer extends SlimefunItem implements ExtraInventoryBlock, Energ
 		for (int y = 0; y < 6; y++) for (int x = 0; x < 6; x++) {
 			final int displaySlot = y * 9 + (x + 3);
 			loc.x = data.viewLocation.x + x; loc.y = data.viewLocation.y + y;
-			if (loc.x == data.selectedLoc.x && loc.y == data.selectedLoc.y && data.selected) menu.replaceExistingItem(displaySlot, GUI_SELECTED);
-			else if (data.program.statements.containsKey(loc)) menu.replaceExistingItem(displaySlot, data.program.statements.get(loc).displayStatement());
+			if (loc.x == data.selectedLoc.x && loc.y == data.selectedLoc.y && data.selected) {
+				menu.replaceExistingItem(displaySlot, GUI_SELECTED);
+				// TODO show input string
+			}
+			else if (data.program.statements.containsKey(loc)) menu.replaceExistingItem(displaySlot, data.program.statements.get(loc).statement.displayStatement());
 			else menu.replaceExistingItem(displaySlot, GUI_PLACEHOLDER);
 		}
 	}
 	public void click_statements(Player p, int slot, ItemStack item, ClickAction action, int statementIndex, ComputerData data) {
-		if (!data.selected) p.sendMessage("§7>> §cYou haven't selected a slot, have you?");
+		if (!data.selected) {
+			p.sendMessage("§7>> §cYou haven't selected a slot, have you?");
+			return;
+		}
 		data.selected = false;
-		data.program.statements.put(new StatementLocation(data.selectedLoc), Statement.getStatements().get(statementIndex));
+		if (data.program.statements.containsKey(data.selectedLoc)) data.program.statements.get(data.selectedLoc).statement = Statement.getStatements().get(statementIndex);
+		else data.program.statements.put(new StatementLocation(data.selectedLoc), new StatementInfo(Statement.getStatements().get(statementIndex)));
 		showCurrentProgram(data.menu, data);
 	}
 	public void click_program(Player p, int slot, ItemStack item, ClickAction action, StatementLocation loc, ComputerData data) {

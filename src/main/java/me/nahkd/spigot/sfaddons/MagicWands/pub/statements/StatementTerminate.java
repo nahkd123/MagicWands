@@ -11,9 +11,9 @@ import me.nahkd.spigot.sfaddons.MagicWands.pub.Statement;
 public class StatementTerminate extends Statement {
 	
 	@Override
-	public boolean runStatement(Player player, RuntimeInfo info) {return true;}
+	public boolean runStatement(Player player, RuntimeInfo info, String input) {return true;}
 	@Override
-	public double powerCost() {
+	public double powerCost(String input) {
 		return 0;
 	}
 	

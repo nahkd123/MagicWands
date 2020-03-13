@@ -12,9 +12,9 @@ public abstract class Statement {
 	 * @param player The player executed this program
 	 * @return true to stop program, otherwise false
 	 */
-	public abstract boolean runStatement(Player player, RuntimeInfo info);
+	public abstract boolean runStatement(Player player, RuntimeInfo info, String input);
 	public abstract ItemStack displayStatement();
-	public abstract double powerCost();
+	public abstract double powerCost(String input);
 	public void register() {register(this);}
 	
 	private static ArrayList<Statement> statements;

@@ -15,12 +15,15 @@ import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 import me.mrCookieSlime.Slimefun.bstats.bukkit.Metrics;
 import me.mrCookieSlime.Slimefun.cscorelib2.config.Config;
 import me.mrCookieSlime.Slimefun.cscorelib2.item.CustomItem;
+import me.nahkd.spigot.sfaddons.MagicWands.events.PlayerListener;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.persistent.StringArrayItemTagType;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementDown;
+import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementInfo;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementTerminate;
 import me.nahkd.spigot.sfaddons.MagicWands.pub.statements.StatementUp;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.Computer;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.HardDrive;
+import me.nahkd.spigot.sfaddons.MagicWands.sf.InputCard;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.MagicWand;
 import me.nahkd.spigot.sfaddons.MagicWands.sf.WandProgrammer;
 
@@ -35,6 +38,7 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 	public HardDrive HARD_DRIVE;
 	public Computer COMPUTER;
 	public WandProgrammer WAND_PROGRAMMER;
+	public InputCard INPUT_CARD;
 
 	public NamespacedKey KEY_PROGRAM;
 	public NamespacedKey KEY_UUID;
@@ -100,11 +104,16 @@ public class MagicWands extends JavaPlugin implements SlimefunAddon {
 		HARD_DRIVE = new HardDrive(); HARD_DRIVE.register(this);
 		COMPUTER = new Computer(this); COMPUTER.register(this);
 		WAND_PROGRAMMER = new WandProgrammer(this); WAND_PROGRAMMER.register(this);
+		INPUT_CARD = new InputCard(); INPUT_CARD.register(this);
 		
 		// Setting up statements and stuffs
 		new StatementTerminate().register();
 		new StatementUp().register();
 		new StatementDown().register();
+		new StatementInfo().register();
+		
+		// Events
+		getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 	}
 	
 	@Override
